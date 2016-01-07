@@ -498,6 +498,7 @@ extern Buf pack_slurmdbd_msg(slurmdbd_msg_t *req, uint16_t rpc_version)
 	case DBD_ADD_TRES:
 	case DBD_ADD_ASSOCS:
 	case DBD_ADD_CLUSTERS:
+	case DBD_ADD_FEDERATIONS:
 	case DBD_ADD_RES:
 	case DBD_ADD_USERS:
 	case DBD_GOT_ACCOUNTS:
@@ -505,6 +506,7 @@ extern Buf pack_slurmdbd_msg(slurmdbd_msg_t *req, uint16_t rpc_version)
 	case DBD_GOT_ASSOCS:
 	case DBD_GOT_CLUSTERS:
 	case DBD_GOT_EVENTS:
+	case DBD_GOT_FEDERATIONS:
 	case DBD_GOT_JOBS:
 	case DBD_GOT_LIST:
 	case DBD_GOT_PROBS:
@@ -545,6 +547,7 @@ extern Buf pack_slurmdbd_msg(slurmdbd_msg_t *req, uint16_t rpc_version)
 	case DBD_GET_ASSOCS:
 	case DBD_GET_CLUSTERS:
 	case DBD_GET_EVENTS:
+	case DBD_GET_FEDERATIONS:
 	case DBD_GET_JOBS_COND:
 	case DBD_GET_PROBS:
 	case DBD_GET_QOS:
@@ -682,6 +685,7 @@ extern int unpack_slurmdbd_msg(slurmdbd_msg_t *resp,
 	case DBD_ADD_TRES:
 	case DBD_ADD_ASSOCS:
 	case DBD_ADD_CLUSTERS:
+	case DBD_ADD_FEDERATIONS:
 	case DBD_ADD_RES:
 	case DBD_ADD_USERS:
 	case DBD_GOT_ACCOUNTS:
@@ -689,6 +693,7 @@ extern int unpack_slurmdbd_msg(slurmdbd_msg_t *resp,
 	case DBD_GOT_ASSOCS:
 	case DBD_GOT_CLUSTERS:
 	case DBD_GOT_EVENTS:
+	case DBD_GOT_FEDERATIONS:
 	case DBD_GOT_JOBS:
 	case DBD_GOT_LIST:
 	case DBD_GOT_PROBS:
@@ -730,6 +735,7 @@ extern int unpack_slurmdbd_msg(slurmdbd_msg_t *resp,
 	case DBD_GET_ASSOCS:
 	case DBD_GET_CLUSTERS:
 	case DBD_GET_EVENTS:
+	case DBD_GET_FEDERATIONS:
 	case DBD_GET_JOBS_COND:
 	case DBD_GET_PROBS:
 	case DBD_GET_QOS:
@@ -873,6 +879,8 @@ extern slurmdbd_msg_type_t str_2_slurmdbd_msg_type(char *msg_type)
 		return DBD_ADD_ASSOCS;
 	} else if (!strcasecmp(msg_type, "Add Clusters")) {
 		return DBD_ADD_CLUSTERS;
+	} else if (!strcasecmp(msg_type, "Add Federations")) {
+		return DBD_ADD_FEDERATIONS;
 	} else if (!strcasecmp(msg_type, "Add Resources")) {
 		return DBD_ADD_RES;
 	} else if (!strcasecmp(msg_type, "Add Users")) {
@@ -895,6 +903,8 @@ extern slurmdbd_msg_type_t str_2_slurmdbd_msg_type(char *msg_type)
 		return DBD_GET_CLUSTER_USAGE;
 	} else if (!strcasecmp(msg_type, "Get Events")) {
 		return DBD_GET_EVENTS;
+	} else if (!strcasecmp(msg_type, "Get Federations")) {
+		return DBD_GET_FEDERATIONS;
 	} else if (!strcasecmp(msg_type, "Reconfigure")) {
 		return DBD_RECONFIG;
 	} else if (!strcasecmp(msg_type, "Get Problems")) {
@@ -917,6 +927,8 @@ extern slurmdbd_msg_type_t str_2_slurmdbd_msg_type(char *msg_type)
 		return DBD_GOT_CLUSTER_USAGE;
 	} else if (!strcasecmp(msg_type, "Got Events")) {
 		return DBD_GOT_EVENTS;
+	} else if (!strcasecmp(msg_type, "Got Federations")) {
+		return DBD_GOT_FEDERATIONS;
 	} else if (!strcasecmp(msg_type, "Got Jobs")) {
 		return DBD_GOT_JOBS;
 	} else if (!strcasecmp(msg_type, "Got List")) {
@@ -1077,6 +1089,12 @@ extern char *slurmdbd_msg_type_2_str(slurmdbd_msg_type_t msg_type, int get_enum)
 		} else
 			return "Add Clusters";
 		break;
+	case DBD_ADD_FEDERATIONS:
+		if (get_enum) {
+			return "DBD_ADD_FEDERATIONS";
+		} else
+			return "Add Clusters";
+		break;
 	case DBD_ADD_RES:
 		if (get_enum) {
 			return "DBD_ADD_RES";
@@ -1143,6 +1161,12 @@ extern char *slurmdbd_msg_type_2_str(slurmdbd_msg_type_t msg_type, int get_enum)
 		} else
 			return "Get Events";
 		break;
+	case DBD_GET_FEDERATIONS:
+		if (get_enum) {
+			return "DBD_GET_FEDERATIONS";
+		} else
+			return "Get Federations";
+		break;
 	case DBD_RECONFIG:
 		if (get_enum) {
 			return "DBD_RECONFIG";
@@ -1208,6 +1232,12 @@ extern char *slurmdbd_msg_type_2_str(slurmdbd_msg_type_t msg_type, int get_enum)
 			return "DBD_GOT_EVENTS";
 		} else
 			return "Got Events";
+		break;
+	case DBD_GOT_FEDERATIONS:
+		if (get_enum) {
+			return "DBD_GOT_FEDERATIONS";
+		} else
+			return "Got Federations";
 		break;
 	case DBD_GOT_JOBS:
 		if (get_enum) {
@@ -2584,6 +2614,9 @@ extern void slurmdbd_free_cond_msg(dbd_cond_msg_t *msg,
 		case DBD_REMOVE_CLUSTERS:
 			my_destroy = slurmdb_destroy_cluster_cond;
 			break;
+		case DBD_GET_FEDERATIONS:
+			my_destroy = slurmdb_destroy_federation_cond;
+			break;
 		case DBD_GET_JOBS_COND:
 			my_destroy = slurmdb_destroy_job_cond;
 			break;
@@ -2996,6 +3029,9 @@ extern void slurmdbd_pack_cond_msg(dbd_cond_msg_t *msg,
 	case DBD_REMOVE_CLUSTERS:
 		my_function = slurmdb_pack_cluster_cond;
 		break;
+	case DBD_GET_FEDERATIONS:
+		my_function = slurmdb_pack_federation_cond;
+		break;
 	case DBD_GET_JOBS_COND:
 		my_function = slurmdb_pack_job_cond;
 		break;
@@ -3058,6 +3094,9 @@ extern int slurmdbd_unpack_cond_msg(dbd_cond_msg_t **msg,
 	case DBD_GET_CLUSTERS:
 	case DBD_REMOVE_CLUSTERS:
 		my_function = slurmdb_unpack_cluster_cond;
+		break;
+	case DBD_GET_FEDERATIONS:
+		my_function = slurmdb_unpack_federation_cond;
 		break;
 	case DBD_GET_JOBS_COND:
 		my_function = slurmdb_unpack_job_cond;
@@ -3658,6 +3697,10 @@ extern void slurmdbd_pack_list_msg(dbd_list_msg_t *msg,
 	case DBD_GOT_CLUSTERS:
 		my_function = slurmdb_pack_cluster_rec;
 		break;
+	case DBD_ADD_FEDERATIONS:
+	case DBD_GOT_FEDERATIONS:
+		my_function = slurmdb_pack_federation_rec;
+		break;
 	case DBD_GOT_CONFIG:
 		my_function = pack_config_key_pair;
 		break;
@@ -3757,6 +3800,11 @@ extern int slurmdbd_unpack_list_msg(dbd_list_msg_t **msg, uint16_t rpc_version,
 	case DBD_GOT_CLUSTERS:
 		my_function = slurmdb_unpack_cluster_rec;
 		my_destroy = slurmdb_destroy_cluster_rec;
+		break;
+	case DBD_ADD_FEDERATIONS:
+	case DBD_GOT_FEDERATIONS:
+		my_function = slurmdb_unpack_federation_rec;
+		my_destroy = slurmdb_destroy_federation_rec;
 		break;
 	case DBD_GOT_CONFIG:
 		my_function = unpack_config_key_pair;

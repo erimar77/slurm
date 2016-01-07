@@ -156,6 +156,9 @@ typedef enum {
 	DBD_ADD_TRES,         /* Add tres to the database           */
 	DBD_GET_TRES,         /* Get tres from the database         */
 	DBD_GOT_TRES,         /* Got tres from the database         */
+	DBD_ADD_FEDERATIONS,    /* Add new federation to the mix        */
+	DBD_GET_FEDERATIONS,	/* Get federation information		*/
+	DBD_GOT_FEDERATIONS,	/* Response to DBD_GET_FEDERATIONS 	*/
 } slurmdbd_msg_type_t;
 
 /*****************************************************************************\
