@@ -159,6 +159,7 @@ typedef enum {
 	DBD_ADD_FEDERATIONS,    /* Add new federation to the mix        */
 	DBD_GET_FEDERATIONS,	/* Get federation information		*/
 	DBD_GOT_FEDERATIONS,	/* Response to DBD_GET_FEDERATIONS 	*/
+	DBD_MODIFY_FEDERATIONS, /* Modify existing federation 		*/
 } slurmdbd_msg_type_t;
 
 /*****************************************************************************\
